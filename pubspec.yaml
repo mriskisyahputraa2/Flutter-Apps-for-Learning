@@ -1,0 +1,66 @@
+name: my_project
+description: "A new Flutter project."
+# The following line prevents the package from being accidentally published to
+# pub.dev using `flutter pub publish`. This is preferred for private packages.
+publish_to: "none"
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.9.0 # Pastikan ini sesuai dengan SDK Anda
+
+# Dependencies specify other packages that your package needs in order to work.
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # The following adds the Cupertino Icons font to your application.
+  # Use with the CupertinoIcons class for iOS style icons.
+  cupertino_icons: ^1.0.8
+  google_fonts: ^6.3.1
+
+  # DEPENDENSI UNTUK PERSISTENSI LOGIN
+  shared_preferences: ^2.2.3
+
+  # ==========================================================
+  # DEPENDENSI DRIFT (DIHAPUS)
+  # ==========================================================
+  # drift: ^2.14.0
+  # sqlite3_flutter_libs: ^0.5.0
+  # path_provider: ^2.1.2
+  # path: ^1.8.3
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  # ==========================================================
+  # DEV DEPENDENSI DRIFT (DIHAPUS)
+  # ==========================================================
+  # drift_dev: ^2.14.0
+  # build_runner: ^2.4.6
+
+  # Linting tools
+  flutter_lints: ^6.0.0 # Versi lint terbaru
+
+# dependency_overrides (DIHAPUS)
+# dependency_overrides:
+#   sqlite3: ^0.2.1
+
+# The following section is specific to Flutter packages.
+flutter:
+  uses-material-design: true
+
+  # To add assets to your application, add an assets section, like this:
+  # assets:
+  #   - images/a_dot_burr.jpeg
+
+  # To add custom fonts to your application, add a fonts section here,
+  # in this "flutter" section. Each entry in this list should have a
+  # "family" key with the font family name, and a "fonts" key with a
+  # list giving the asset and other descriptors for the font. For
+  # example:
+  # fonts:
+  #   - family: Schyler
+  #     fonts:
+  #       - asset: fonts/Schyler-Regular.ttf
