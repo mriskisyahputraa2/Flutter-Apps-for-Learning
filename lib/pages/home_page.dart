@@ -1,36 +1,44 @@
 import 'package:flutter/material.dart';
 
 class HomePage extends StatelessWidget {
-  // Terima data user melalui konstruktor
   final Map<String, String>? userData;
 
   const HomePage({super.key, this.userData});
 
   @override
   Widget build(BuildContext context) {
-    final username = userData?['username'];
-    final bool isLoggedIn = username != null && username.isNotEmpty;
+    final username = userData?['username'] ?? 'Teman';
 
-    // Hapus Scaffold dan AppBar, langsung return kontennya
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
-          Icon(
-            Icons.waving_hand_rounded,
-            size: 80,
-            color: Colors.deepPurple[300],
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: Colors.deepPurple.withOpacity(0.1),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              Icons.waving_hand_rounded,
+              size: 80,
+              color: Colors.deepPurple[300],
+            ),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 24),
           Text(
-            isLoggedIn ? 'Selamat Datang,\n$username!' : 'Anda belum login.',
-            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            'Selamat Datang,\n$username!',
+            style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 10),
-          const Text(
-            'Gunakan menu di bawah untuk bernavigasi.',
-            style: TextStyle(fontSize: 16, color: Colors.grey),
+          const SizedBox(height: 16),
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 40),
+            child: Text(
+              'Aplikasi Perpustakaan Terintegrasi Laravel API.',
+              style: TextStyle(fontSize: 16, color: Colors.grey),
+              textAlign: TextAlign.center,
+            ),
           ),
         ],
       ),

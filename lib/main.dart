@@ -53,17 +53,22 @@ class __AuthCheckerState extends State<_AuthChecker> {
 
   Future<void> _checkLoginStatus() async {
     final prefs = await SharedPreferences.getInstance();
-    final username = prefs.getString('username');
-    final password = prefs.getString('password');
+    final token = prefs.getString('token');
+    final name = prefs.getString('user_name');
+    final email = prefs.getString('user_email');
 
-    if (username != null && password != null) {
+    if (token != null) {
       setState(() {
-        _userData = {'username': username, 'password': password};
+        // Kita kirim data nama & email ke MainPage
+        _userData = {
+          'username': name ?? 'User',
+          'email': email ?? 'email@example.com',
+        };
         _isLoading = false;
       });
     } else {
       setState(() {
-        _isLoading = false;
+        _isLoading = false; // Tidak ada token = Belum login
       });
     }
   }

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:shared_preferences/shared_preferences.dart'; // Digunakan untuk menyimpan status login
+import '../services/auth_service.dart'; // Import Service API
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -10,39 +10,62 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  final _usernameController = TextEditingController();
+  // Ganti username jadi email agar cocok dengan API Laravel
+  final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+
+  // Variable untuk status loading
+  bool _isLoading = false;
 
   @override
   void dispose() {
-    _usernameController.dispose();
+    _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
 
   void _handleLogin() async {
-    // Fungsi tetap async untuk Shared Preferences
-    final username = _usernameController.text;
+    final email = _emailController.text;
     final password = _passwordController.text;
 
-    // Logika validasi sederhana (Anda bisa ganti dengan logika autentikasi server)
-    if (username.isNotEmpty && password.isNotEmpty) {
-      // >>> Simpan data login ke Shared Preferences <<<
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('username', username);
-      await prefs.setString('password', password);
-      // >>> END Simpan <<<
-
-      // Navigasi ke Main Page
-      Navigator.pushReplacementNamed(
-        context,
-        '/main',
-        arguments: {'username': username, 'password': password},
-      );
-    } else {
+    if (email.isEmpty || password.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Username dan Password tidak boleh kosong!'),
+          content: Text('Email dan Password tidak boleh kosong!'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    // 1. Set Loading TRUE (Mulai proses)
+    setState(() {
+      _isLoading = true;
+    });
+
+    // 2. Panggil AuthService
+    AuthService authService = AuthService();
+    bool success = await authService.login(email, password);
+
+    // 3. Set Loading FALSE (Selesai proses)
+    if (mounted) {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+
+    // 4. Cek Hasil
+    if (success) {
+      if (!mounted) return;
+      // Login Berhasil -> Masuk ke Main
+      // Kita tidak perlu kirim arguments lagi, karena data sudah disimpan di SharedPreferences oleh Service
+      Navigator.pushReplacementNamed(context, '/main');
+    } else {
+      if (!mounted) return;
+      // Login Gagal -> Tampilkan Pesan Error
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Login Gagal! Periksa Email atau Password Anda.'),
           backgroundColor: Colors.red,
         ),
       );
@@ -102,15 +125,17 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                         ),
                         const SizedBox(height: 30),
+                        // INPUT EMAIL (Diganti dari Username)
                         TextField(
-                          controller: _usernameController,
-                          maxLength: 15,
+                          controller: _emailController,
+                          keyboardType: TextInputType
+                              .emailAddress, // Keyboard khusus email
                           decoration: InputDecoration(
                             prefixIcon: const Icon(
-                              Icons.person_outline_rounded,
+                              Icons.email_outlined, // Icon amplop
                             ),
-                            labelText: 'Username',
-                            helperText: 'Masukkan hanya 15 Karakter saja',
+                            labelText: 'Email',
+                            hintText: 'contoh@email.com',
                             filled: true,
                             fillColor: Colors.grey[100],
                             border: OutlineInputBorder(
@@ -120,6 +145,7 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                         ),
                         const SizedBox(height: 16),
+                        // INPUT PASSWORD
                         TextField(
                           controller: _passwordController,
                           obscureText: true,
@@ -138,19 +164,31 @@ class _LoginPageState extends State<LoginPage> {
                         SizedBox(
                           width: double.infinity,
                           child: ElevatedButton.icon(
-                            icon: const Icon(
-                              Icons.login_rounded,
-                              color: Colors.white,
-                            ),
-                            label: const Text(
-                              'LOGIN',
-                              style: TextStyle(
+                            // Jika Loading, tampilkan spinner. Jika tidak, tampilkan Icon Login
+                            icon: _isLoading
+                                ? const SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                      color: Colors.white,
+                                      strokeWidth: 2,
+                                    ),
+                                  )
+                                : const Icon(
+                                    Icons.login_rounded,
+                                    color: Colors.white,
+                                  ),
+                            label: Text(
+                              _isLoading ? 'SEDANG MASUK...' : 'LOGIN',
+                              style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
                                 color: Colors.white,
                               ),
                             ),
-                            onPressed: _handleLogin,
+                            onPressed: _isLoading
+                                ? null
+                                : _handleLogin, // Disable tombol saat loading
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFF667EEA),
                               padding: const EdgeInsets.symmetric(vertical: 16),

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import '../services/auth_service.dart'; // Import AuthService
 
 class MyDrawer extends StatelessWidget {
   final Map<String, String>? userData;
@@ -7,21 +7,24 @@ class MyDrawer extends StatelessWidget {
 
   const MyDrawer({super.key, this.userData, required this.onItemTapped});
 
-  // Fungsi untuk Logout dan menghapus data sesi (Shared Preferences)
+  // Fungsi Logout yang Benar (Lewat Service)
   void _handleLogout(BuildContext context) async {
-    final prefs = await SharedPreferences.getInstance();
-    // Hapus data login dari local storage
-    await prefs.remove('username');
-    await prefs.remove('password');
+    // 1. Panggil Logout di Service (Hapus Token di Server & HP)
+    final authService = AuthService();
+    await authService.logout();
 
-    // Navigasi ke halaman login dan hapus semua rute sebelumnya
-    Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
+    // 2. Cek apakah widget masih aktif sebelum navigasi
+    if (context.mounted) {
+      // 3. Kembali ke halaman Login dan hapus semua history halaman sebelumnya
+      Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    // Ambil data dari userData yang dikirim dari Main.dart
     final username = userData?['username'] ?? 'Guest';
-    final email = '${username.toLowerCase().replaceAll(' ', '')}@email.com';
+    final email = userData?['email'] ?? 'guest@example.com';
 
     return Drawer(
       child: ListView(
@@ -32,10 +35,13 @@ class MyDrawer extends StatelessWidget {
               username,
               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
             ),
-            accountEmail: Text(email),
-            currentAccountPicture: const CircleAvatar(
+            accountEmail: Text(email), // Email asli dari API
+            currentAccountPicture: CircleAvatar(
               backgroundColor: Colors.white,
-              child: Icon(Icons.person, size: 50, color: Colors.deepPurple),
+              child: Text(
+                username.isNotEmpty ? username[0].toUpperCase() : 'G',
+                style: const TextStyle(fontSize: 24, color: Colors.deepPurple),
+              ),
             ),
             decoration: const BoxDecoration(color: Colors.deepPurple),
           ),
@@ -50,8 +56,8 @@ class MyDrawer extends StatelessWidget {
             },
           ),
           ListTile(
-            leading: const Icon(Icons.list_alt_outlined),
-            title: const Text('Daftar Wisata'),
+            leading: const Icon(Icons.menu_book_rounded), // Icon Buku
+            title: const Text('Daftar Buku'), // Ubah Wisata jadi Buku
             onTap: () {
               Navigator.pop(context);
               onItemTapped(1);
@@ -59,7 +65,7 @@ class MyDrawer extends StatelessWidget {
           ),
           ListTile(
             leading: const Icon(Icons.grid_view),
-            title: const Text('Galeri Wisata'),
+            title: const Text('Galeri Buku'),
             onTap: () {
               Navigator.pop(context);
               onItemTapped(2);
@@ -91,7 +97,30 @@ class MyDrawer extends StatelessWidget {
               style: TextStyle(color: Colors.redAccent),
             ),
             onTap: () {
-              _handleLogout(context);
+              // Tampilkan konfirmasi logout
+              showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: const Text('Konfirmasi'),
+                  content: const Text('Yakin ingin keluar aplikasi?'),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text('Batal'),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop(context); // Tutup dialog
+                        _handleLogout(context); // Proses logout
+                      },
+                      child: const Text(
+                        'Ya, Keluar',
+                        style: TextStyle(color: Colors.red),
+                      ),
+                    ),
+                  ],
+                ),
+              );
             },
           ),
         ],

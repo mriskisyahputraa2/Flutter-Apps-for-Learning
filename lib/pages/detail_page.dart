@@ -1,92 +1,113 @@
-// lib/pages/detail_page.dart
 import 'package:flutter/material.dart';
+import '../models/book.dart';
 
 class DetailPage extends StatelessWidget {
-  // Menerima data destinasi dari halaman sebelumnya (hanya Map statis)
-  final Map<String, String> destinasi;
+  // Kita menerima object Book (dari ListPage), bukan Map lagi
+  final Book book;
 
-  const DetailPage({super.key, required this.destinasi});
+  const DetailPage({super.key, required this.book});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(destinasi['nama']!),
-        backgroundColor: Colors.deepPurple,
-        // Tombol Edit (CRUD Update) Dihapus
+        title: Text(
+          book.title,
+          overflow: TextOverflow.ellipsis, // Agar judul panjang tidak error
+        ),
+        backgroundColor: Colors.deepPurple, // Menyesuaikan tema
+        foregroundColor: Colors.white, // Warna teks header putih
       ),
       body: SingleChildScrollView(
+        padding: const EdgeInsets.all(24.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Gambar destinasi yang diperbesar
-            Image.network(
-              destinasi['imageUrl']!,
-              fit: BoxFit.cover,
-              width: double.infinity,
-              height: 250,
-              errorBuilder: (context, error, stackTrace) {
-                return Container(
-                  height: 250,
-                  color: Colors.grey[300],
-                  child: const Center(
-                    child: Icon(
-                      Icons.broken_image,
-                      size: 50,
-                      color: Colors.grey,
+            // 1. HEADER: Icon Buku Besar (Pengganti Gambar)
+            Center(
+              child: Container(
+                width: 120,
+                height: 160,
+                decoration: BoxDecoration(
+                  color: Colors.deepPurple.shade50,
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.3),
+                      spreadRadius: 2,
+                      blurRadius: 10,
+                      offset: const Offset(0, 5),
                     ),
-                  ),
-                );
-              },
+                  ],
+                ),
+                child: const Icon(
+                  Icons.menu_book_rounded,
+                  size: 64,
+                  color: Colors.deepPurple,
+                ),
+              ),
             ),
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Nama destinasi
-                  Text(
-                    destinasi['nama']!,
-                    style: const TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.deepPurple,
-                    ),
+            const SizedBox(height: 32),
+
+            // 2. JUDUL BUKU
+            Text(
+              book.title,
+              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+
+            // 3. BADGE: Penulis & Tahun
+            Row(
+              children: [
+                Chip(
+                  avatar: const Icon(
+                    Icons.person,
+                    size: 18,
+                    color: Colors.white,
                   ),
-                  const SizedBox(height: 8),
-                  // Lokasi dan rating
-                  Row(
-                    children: [
-                      const Icon(
-                        Icons.location_on,
-                        size: 20,
-                        color: Colors.deepPurple,
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        destinasi['lokasi']!,
-                        style: TextStyle(fontSize: 16, color: Colors.grey[600]),
-                      ),
-                      const Spacer(),
-                      const Icon(Icons.star, size: 20, color: Colors.amber),
-                      const SizedBox(width: 4),
-                      Text(
-                        destinasi['rating']!,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
+                  label: Text(
+                    book.author,
+                    style: const TextStyle(color: Colors.white),
                   ),
-                  const Divider(height: 32),
-                  // Deskripsi
-                  Text(
-                    destinasi['deskripsi']!,
-                    style: const TextStyle(fontSize: 16, height: 1.5),
-                    textAlign: TextAlign.justify,
+                  backgroundColor: Colors.blueGrey,
+                ),
+                const SizedBox(width: 10),
+                Chip(
+                  avatar: const Icon(
+                    Icons.calendar_today,
+                    size: 16,
+                    color: Colors.white,
                   ),
-                ],
+                  label: Text(
+                    book.publishedYear.toString(),
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                  backgroundColor: Colors.orange,
+                ),
+              ],
+            ),
+            const SizedBox(height: 24),
+
+            // 4. DESKRIPSI / SINOPSIS
+            const Text(
+              "Sinopsis / Deskripsi",
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.grey[100], // Background tipis agar rapi
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Text(
+                book.description,
+                style: const TextStyle(
+                  fontSize: 16,
+                  height: 1.6, // Spasi antar baris agar enak dibaca
+                  color: Colors.black87,
+                ),
+                textAlign: TextAlign.justify,
               ),
             ),
           ],

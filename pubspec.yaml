@@ -22,6 +22,9 @@ dependencies:
   # DEPENDENSI UNTUK PERSISTENSI LOGIN
   shared_preferences: ^2.2.3
 
+  # UNTUK KONEKSI KE LARAVEL
+  http: ^1.2.1
+
   # ==========================================================
   # DEPENDENSI DRIFT (DIHAPUS)
   # ==========================================================
